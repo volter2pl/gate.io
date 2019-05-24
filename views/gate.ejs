@@ -1,0 +1,61 @@
+<html>
+<head>
+    <title><%= title %></title>
+    <script src="/javascripts/socket.io.js"></script>
+    <script src="/javascripts/led.js?<%= ver %>"></script>
+    <script src="/javascripts/logger.js?<%= ver %>"></script>
+    <script src="/javascripts/gate.js?<%= ver %>"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script> -->
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta http-equiv="ScreenOrientation" content="autoRotate:auto" />
+    <meta name="theme-color" content="#444" />
+    <link rel="stylesheet" href="/stylesheets/style.css?<%= ver %>">
+</head>
+<body>
+
+<div id="console" class="console hidden" unselectable="on" onselectstart="return false;" onmousedown="return false;"></div>
+
+<div class="pilot">
+    <svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+        <g>
+            <title>background</title>
+            <rect fill="none" id="canvas_background" height="500" width="300" y="0" x="0" />
+            <g display="none" overflow="visible" y="0" x="0" height="500" width="300" id="canvasGrid">
+                <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="500" width="300" />
+            </g>
+        </g>
+        <g>
+            <rect stroke="#fff" rx="50" id="obudowa" height="500" width="300" y="0" x="0" stroke-width="1.5" fill="#444444" />
+            <ellipse ry="50" rx="50" id="lewy"  cy="250" cx="80"  stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
+            <ellipse ry="50" rx="50" id="prawy" cy="250" cx="220" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
+            <ellipse ry="15" rx="15" id="led"   cy="100" cx="150" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
+        </g>
+    </svg>
+<div class="pilot">
+
+<script>
+(function() {
+    const element = {
+        led     : document.getElementById("led"),
+        brama   : document.getElementById("lewy"),
+        log     : document.getElementById("prawy"),
+        console : document.getElementById("console")
+    },
+
+    logConfig = {
+        max: 20,
+        showOnInit: false,
+        showNotice: false
+    };
+
+    new Gate(
+        '/gate',
+        element.brama,
+        new Led(element.led),
+        new Logger(element.log, element.console, logConfig)
+    );
+})();
+</script>
+
+</body>
+</html>

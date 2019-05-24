@@ -1,0 +1,38 @@
+{
+  "name": "gate.io",
+  "version": "1.0.0",
+  "description": "Gate remote controll",
+  "main": "./bin/www.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./bin/www.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/volter2.pl/gate.io"
+  },
+  "keywords": [
+    "esp8266",
+    "websocket",
+    "socket.io",
+    "arduino"
+  ],
+  "author": "Szymon Maciejewski",
+  "bugs": {
+    "url": "https://github.com/volter2pl/gate.io/issues"
+  },
+  "homepage": "https://github.com/volter2pl/gate.io",
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "express-basic-auth": "^1.2.0",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0",
+    "uuid": "^3.3.2",
+    "websocket": "^1.0.18"
+  }
+}

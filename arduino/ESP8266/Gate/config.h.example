@@ -1,0 +1,11 @@
+/* WiFi config*/
+const char * wifi_ssid = "ssid";
+const char * wifi_pass = "pass";
+
+/* WebSocket config*/
+const char * ws_host = "app.service.com";
+const int    ws_port = 81;
+
+/* WebSocket basic authentication */
+const char * ws_pass = "device";
+const char * ws_user = "passwd";

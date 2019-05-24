@@ -1,0 +1,43 @@
+<!--
+<html>
+<head>
+    <title><%= title %></title>
+</head>
+<body>
+    <a href="/gate">Pilot bramy</a>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html>
+  <div id="c">qwerty</div>
+  <body>
+    <script>
+        window.addEventListener('deviceorientation', function(event) {
+            let r = Math.round(event.alpha),
+                g = Math.round(event.beta),
+                b = Math.round(event.gamma);
+//            let color = "color: #" + r.toString(16) + g.toString(16) + b.toString(16);
+            let color = dec2color(r,g,b);
+
+            document.getElementById("c").innerHTML =
+                r /*event.alpha */ + '<br>' +
+                g /*event.beta  */ + '<br>' +
+                b /*event.gamma */ + '<br>' + color;
+
+            document.getElementById("c").style = "background-color: " + color;
+        });
+
+        function d2h(dec) {
+            dec = Math.sqrt(dec * dec);
+            return ("0" + dec.toString(16)).substr(-2);
+        }
+
+        function dec2color(r,g,b) {
+            return "#"+d2h(r)+d2h(g)+d2h(b);
+        }
+
+    </script>
+  </body>
+</html>
