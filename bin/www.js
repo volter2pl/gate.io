@@ -1,7 +1,11 @@
 let http = require('http');
+let https = require('https');
+let privateKey  = fs.readFileSync('../sslcert/server.key', 'utf8');
+let certificate = fs.readFileSync('../sslcert/server.crt', 'utf8');
 
 let port = {
         http: 80,
+        https: 443,
         socket: 81
     },
     sockets = {
@@ -13,7 +17,10 @@ let app = require('../app')(sockets);
 app.set('port', port.http);
 
 let httpServer = http.createServer(app);
+let httpsServer = https.createServer({key: privateKey, cert: certificate}, app);
+
 httpServer.listen(port.http, () => {console.log((new Date()) + ' httpServer is listening on port ' + port.http)});
+httpsServer.listen(port.https);
 
 let socketServer = http.createServer((req, res) => {
     console.log((new Date()) + ' WS: Received request for ' + req.url + " (" + (req.headers["X-Forwarded-For"] || req.connection.remoteAddress) + ")");

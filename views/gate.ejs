@@ -29,33 +29,112 @@
             <ellipse ry="50" rx="50" id="lewy"  cy="250" cx="80"  stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
             <ellipse ry="50" rx="50" id="prawy" cy="250" cx="220" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
             <ellipse ry="15" rx="15" id="led"   cy="100" cx="150" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
+            <ellipse ry="25" rx="25" id="gps"   cy="350" cx="150" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
         </g>
     </svg>
 <div class="pilot">
 
-<script>
-(function() {
-    const element = {
-        led     : document.getElementById("led"),
-        brama   : document.getElementById("lewy"),
-        log     : document.getElementById("prawy"),
-        console : document.getElementById("console")
-    },
+        <script>
+            (function() {
+                const element = {
+                        led     : document.getElementById("led"),
+                        brama   : document.getElementById("lewy"),
+                        log     : document.getElementById("prawy"),
+                        console : document.getElementById("console"),
+                        gps     : document.getElementById("gps")
+                    },
 
-    logConfig = {
-        max: 20,
-        showOnInit: false,
-        showNotice: false
-    };
+                    logConfig = {
+                        max: 20,
+                        showOnInit: false,
+                        showNotice: false
+                    };
 
-    new Gate(
-        '/gate',
-        element.brama,
-        new Led(element.led),
-        new Logger(element.log, element.console, logConfig)
-    );
-})();
-</script>
+                let logger = new Logger(element.log, element.console, logConfig);
+
+                let gate = new Gate(
+                    '/gate',
+                    element.brama,
+                    new Led(element.led),
+                    logger
+                );
+
+                class Gps {
+                    constructor(activator, gate, log) {
+                        this.state = false;
+
+                        this.activator = activator;
+                        this.gate = gate;
+                        this.log = log;
+
+                        this.checkPosition();
+
+                        (("ontouchstart" in window) ? ["touchstart", "touchend"] : ["mousedown", "mouseup"])
+                            .forEach(evt => activator.addEventListener(evt, this, false));
+                    }
+
+                    handleEvent(evt) {
+                        let handler = `on${evt.type}`;
+                        if (typeof this[handler] === "function") {
+                            evt.preventDefault();
+                            return this[handler](evt);
+                        }
+                    }
+
+                    ontouchstart(evt) {
+                        return this.onmousedown(evt);
+                    }
+
+                    onmousedown(evt) {
+                        console.log("event!");
+                        this.changeState();
+                    }
+
+                    changeState() {
+                        this.state = !this.state;
+                        if (this.state) {
+                            this.activator.setAttribute("fill", "#FFF");
+                        } else {
+                            this.activator.setAttribute("fill", "#000");
+                        }
+                    }
+
+                    checkPosition() {
+                        setTimeout(() => {
+                            if (this.state) {
+                                console.log("position");
+                                navigator.geolocation.getCurrentPosition(
+                                    (position) => {this.consumePosition(position)},
+                                    (error) => {this.errorPosition(error)},
+                                    {
+                                        enableHighAccuracy: true,
+                                        timeout: 5000,
+                                        maximumAge: 0
+                                    }
+                                );
+                                // sprawdzam pozycję i jak jestem blisko to
+                                // gate.gateStart();
+                                // this.state = false;
+                            }
+                            this.checkPosition();
+                        }, 1000);
+                    }
+
+                    consumePosition(position) {
+                        console.log(position.coords.latitude, position.coords.longitude);
+                        this.log.add("lat:" + position.coords.latitude + " lon:" + position.coords.longitude);
+                    }
+
+                    errorPosition(error) {
+                        console.log(error);
+                        this.log.add(error.message);
+                    }
+                }
+
+                new Gps(element.gps, gate, logger);
+
+            })();
+        </script>
 
 </body>
 </html>
