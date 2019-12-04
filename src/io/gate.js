@@ -1,6 +1,6 @@
-module.exports = function(httpServer) {
+module.exports = function(httpsServer) {
 
-    let io = require('socket.io')(httpServer);
+    let io = require('socket.io')(httpsServer);
     let gate_io = io.of('/gate');
 
     gate_io.on('connection', function (socket) {

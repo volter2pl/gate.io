@@ -1,5 +1,7 @@
 users.js
 arduino/ESP8266/Gate/config.h
+sslcert/server.crt
+sslcert/server.key
 
 # Logs
 logs

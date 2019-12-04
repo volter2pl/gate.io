@@ -1,7 +1,12 @@
+let fs = require('fs');
 let http = require('http');
+let https = require('https');
+let key  = fs.readFileSync('sslcert/server.key', 'utf8');
+let cert = fs.readFileSync('sslcert/server.crt', 'utf8');
 
 let port = {
         http: 80,
+        https: 443,
         socket: 81
     },
     sockets = {
@@ -10,10 +15,16 @@ let port = {
     };
 
 let app = require('../app')(sockets);
-app.set('port', port.http);
+app.set('port', port.https);
 
-let httpServer = http.createServer(app);
+let httpServer = http.createServer((req, res) => {
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+});
 httpServer.listen(port.http, () => {console.log((new Date()) + ' httpServer is listening on port ' + port.http)});
+
+let httpsServer = https.createServer({key, cert}, app);
+httpsServer.listen(port.https, () => {console.log((new Date()) + ' httpsServer is listening on port ' + port.https)});
 
 let socketServer = http.createServer((req, res) => {
     console.log((new Date()) + ' WS: Received request for ' + req.url + " (" + (req.headers["X-Forwarded-For"] || req.connection.remoteAddress) + ")");
@@ -24,7 +35,7 @@ let socketServer = http.createServer((req, res) => {
 socketServer.listen(port.socket, () => {console.log((new Date()) + ' socketServer is listening on port ' + port.socket)});
 
 
-let gate_io = require('../src/io/gate')(httpServer);
+let gate_io = require('../src/io/gate')(httpsServer);
 gate_io.common = sockets;
 gate_io.common.gate_io = gate_io;
 
