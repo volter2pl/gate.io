@@ -1,6 +1,9 @@
 <html>
 <head>
     <title><%= title %></title>
+    <link rel='manifest' href='/manifest.json'>
+    <link rel="icon" href="/images/car-gate.svg" type="image/svg+xml" />
+    <script src="/pwa.js?<%= ver %>" defer=""></script>
     <script src="/javascripts/socket.io.js"></script>
     <script src="/javascripts/led.js?<%= ver %>"></script>
     <script src="/javascripts/logger.js?<%= ver %>"></script>
@@ -12,6 +15,7 @@
     <link rel="stylesheet" href="/stylesheets/style.css?<%= ver %>">
 </head>
 <body>
+<button class="add-button">Zainstaluj</button>
 
 <div id="console" class="console hidden" unselectable="on" onselectstart="return false;" onmousedown="return false;"></div>
 
@@ -56,6 +60,5 @@
     );
 })();
 </script>
-
 </body>
 </html>

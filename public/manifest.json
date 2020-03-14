@@ -1,0 +1,42 @@
+{
+    "name" : "Gate",
+    "short_name" : "Gate",
+    "description" : "Otwieranie bramy Górna Wilda",
+    "start_url" : "/gate",
+    "display" : "minimal-ui",
+    "orientation" : "portrait",
+    "background_color" : "#444444",
+    "icons": [
+    {
+      "src": "images/car-gate-48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }, {
+      "src": "images/car-gate-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    }, {
+      "src": "images/car-gate-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }, {
+      "src": "images/car-gate-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }, {
+      "src": "images/car-gate-168.png",
+      "sizes": "168x168",
+      "type": "image/png"
+    }, {
+      "src": "images/car-gate-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }, {
+      "src": "images/car-gate-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },{
+      "src": "icon.svg",
+      "sizes": "257x257"
+    }]
+}

@@ -31,8 +31,19 @@ class Logger {
         this.changeState();
     }
 
+    getLocation() {
+        if (navigator.geolocation) {
+           navigator.geolocation.getCurrentPosition(pos => {
+               this.add("lat: " + pos.coords.latitude + ",lon: " + pos.coords.longitude);
+           });
+        } else {
+            // x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+
     changeState() {
         if (this.console.classList.contains('hidden')) {
+            this.getLocation();
             this.show();
         } else {
             this.hide();
