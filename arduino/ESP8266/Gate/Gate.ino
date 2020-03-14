@@ -14,6 +14,7 @@ ESP8266WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 
 #define RELAY D1 //Pin to which is attached a relay
+#define BUZZER D8 //Pin to which is attached a buzzer
 #define MESSAGE_INTERVAL 5000
 #define HEARTBEAT_INTERVAL 25000
 #define MAX_OPPENING_INTERVAL 10000
@@ -111,6 +112,8 @@ void setup() {
     pinMode(RELAY, OUTPUT);
     digitalWrite(RELAY, LOW);
 
+    pinMode(BUZZER, OUTPUT);
+
     for(uint8_t t = 4; t > 0; t--) {
         Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
         Serial.flush();
@@ -148,5 +151,12 @@ void loop() {
             heartbeatTimestamp = now;
             webSocket.sendTXT("2"); // heartbeat message
         }
+    }
+
+    if (isOpening) {
+        int freq = 500;
+        tone(BUZZER, freq);
+    } else {
+        noTone(BUZZER);
     }
 }
