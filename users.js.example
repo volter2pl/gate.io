@@ -1,9 +1,0 @@
-module.exports = {
-    http : {
-        "user1" : "passwd",
-        "user2" : "passwd"
-    },
-    arduino : {
-        "device" : "passwd"
-    }
-}

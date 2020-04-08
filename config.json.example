@@ -1,0 +1,22 @@
+{
+    "javascript": {
+        "version": 1
+    },
+    "google": {
+        "clientID": "???",
+        "clientSecret": "???",
+        "callbackURL": "/gate/auth/google/callback"
+    },
+    "session": {
+        "name": "session",
+        "keys": ["SECRET KEY"],
+        "maxAge": 86400000
+    },
+    "users": [
+        "user1@gmail.com",
+        "user2@gmail.com"
+    ],
+    "arduino" : {
+        "device" : "password"
+    }
+}

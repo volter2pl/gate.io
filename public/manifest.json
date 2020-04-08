@@ -36,7 +36,7 @@
       "sizes": "512x512",
       "type": "image/png"
     },{
-      "src": "icon.svg",
+      "src": "images/car-gate.svg",
       "sizes": "257x257"
     }]
 }

@@ -6,7 +6,7 @@ if ("serviceWorker" in navigator) {
     // Register the service worker
     navigator.serviceWorker
       .register("pwabuilder-sw.js", {
-        scope: "./"
+        scope: "/"
       })
       .then(function (reg) {
         console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
@@ -18,7 +18,7 @@ if ("serviceWorker" in navigator) {
 // Code to handle install prompt on desktop
 let deferredPrompt;
 let userAccepted = false;
-const addBtn = document.querySelector('.add-button');
+const addBtn = document.getElementById('install');
 addBtn.style.display = 'none';
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -29,7 +29,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   // Update UI to notify the user they can add to home screen
   addBtn.style.display = userAccepted ? 'none' : 'block';
 
-  addBtn.addEventListener('click', (e) => {
+  let install = e => {
     // hide our user interface that shows our A2HS button
     addBtn.style.display = 'none';
     // Show the prompt
@@ -44,5 +44,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
         }
         deferredPrompt = null;
       });
-  });
+  };
+  addBtn.addEventListener('click', (e) => {install(e)});
+  addBtn.addEventListener('gesturestart', (e) => {install(e)});
 });

@@ -1,7 +1,6 @@
 module.exports = function(socketServer) {
 
     let WebSocketServer = require('websocket').server;
-    let users = require('../../users').arduino;
     let uuid = require('uuid/v4');
 
     let gate_ws = new WebSocketServer({
@@ -19,10 +18,12 @@ module.exports = function(socketServer) {
     let socketEvent = require('./event');
 
     function authenticate(req) {
+        delete require.cache[require.resolve("../../config.json")];
+        const arduino = require("../../config.json").arduino;
         const base64Credentials =  req.httpRequest.headers.authorization.split(' ')[1];
         const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
         const [username, password] = credentials.split(':');
-        if (users[username] === password) {
+        if (arduino[username] === password) {
             console.log((new Date()) + " SOCKET connection accepted. [" + username + "]");
             return true;
         } else {

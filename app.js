@@ -3,14 +3,18 @@ module.exports = function(sockets) {
   let createError = require('http-errors');
   let express = require('express');
   let basicAuth = require('express-basic-auth');
-  let users = require('./users').http;
   let path = require('path');
   let cookieParser = require('cookie-parser');
+  let cookieSession = require('cookie-session');
   let logger = require('morgan');
+  let passport = require('passport');
+  let auth = require('./auth');
+  let sessionOptions = require("./config.json").session;
 
   let indexRouter = require('./routes/index');
   let gateRouter = require('./routes/gate')(sockets);
 
+  auth(passport);
   let app = express();
 
 // view engine setup
@@ -22,7 +26,8 @@ module.exports = function(sockets) {
   app.use(express.urlencoded({extended: false}));
   app.use(cookieParser());
   app.use(express.static(path.join(__dirname, 'public')));
-  app.use(basicAuth({users, challenge: true}));
+  app.use(passport.initialize());
+  app.use(cookieSession(sessionOptions));
 
   app.use('/', indexRouter);
   app.use('/gate', gateRouter);
