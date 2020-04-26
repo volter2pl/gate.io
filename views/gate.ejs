@@ -19,7 +19,7 @@
 
 <div class="pilot">
     <svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
-        <g>
+        <g class="noselect">
             <title>background</title>
             <rect fill="none" id="canvas_background" height="500" width="300" y="0" x="0" />
             <g display="none" overflow="visible" y="0" x="0" height="500" width="300" id="canvasGrid">
@@ -28,14 +28,14 @@
         </g>
         <g>
             <rect stroke="#fff" rx="50" id="obudowa" height="500" width="300" y="0" x="0" stroke-width="1.5" fill="#444444" />
-            <g id="install">
+            <g class="noselect" id="install">
                 <rect stroke="#fff" rx="20" ry="20" height="50" width="150" y="10" x="75" stroke-width="1.5" fill="#777777" />
                 <text y="40" x="50%" dominant-baseline="middle" text-anchor="middle" font-size="40" font-family="Arial, Helvetica, sans-serif" fill="#444444" pointer-events="none">Install</text>
             </g>
             <ellipse ry="50" rx="50" id="lewy"  cy="50%" cx="25%" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
             <ellipse ry="50" rx="50" id="prawy" cy="50%" cx="75%" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
             <ellipse ry="15" rx="15" id="led"   cy="25%" cx="50%" stroke-opacity="null" stroke-width="1.5" stroke="#fff" fill="#000000" />
-            <text y="98%" x="50%" dominant-baseline="middle" text-anchor="middle" font-size="10" font-family="Arial, Helvetica, sans-serif" fill="#FFFFFF"><%= user %></text>
+            <text class="noselect" y="98%" x="50%" dominant-baseline="middle" text-anchor="middle" font-size="10" font-family="Arial, Helvetica, sans-serif" fill="#FFFFFF"><%= user %></text>
         </g>
     </svg>
 <div class="pilot">
