@@ -1,0 +1,10 @@
+#define SERIAL_BR 115200
+#define WIFI_SSID "ssid"
+#define WIFI_PASS "pass"
+#define HOSTNAME "gategsm"
+#define OPEN_TIME 15000
+
+#define CALL_TARGET "+48500500500"
+#define AUTH1 "600600600"
+#define AUTH2 "700700700"
+#define SELF_NUMBER "+48555666777"

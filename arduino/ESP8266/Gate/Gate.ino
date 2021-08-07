@@ -6,6 +6,11 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
+
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+#include <ESP8266mDNS.h>
+
 #include <WebSocketsClient.h>
 #include <Hash.h>
 #include "config.h"
@@ -13,150 +18,165 @@
 ESP8266WiFiMulti WiFiMulti;
 WebSocketsClient webSocket;
 
+WiFiClient client;
+HTTPClient http;
+
 #define RELAY D1 //Pin to which is attached a relay
 #define BUZZER D8 //Pin to which is attached a buzzer
 #define MESSAGE_INTERVAL 5000
 #define HEARTBEAT_INTERVAL 25000
-#define MAX_OPPENING_INTERVAL 10000
-#define MIN_OPPENING_INTERVAL 1000
+#define TARGET_HOSTNAME "gategsm"
 
-uint64_t messageTimestamp = 0;
+// uint64_t messageTimestamp = 0;
 uint64_t heartbeatTimestamp = 0;
-uint64_t openingTimestamp = 0;
-uint64_t forceGateEndAt = 0;
+// uint64_t openingTimestamp = 0;
+// uint64_t forceGateEndAt = 0;
 bool isConnected = false;
 bool isOpening = false;
 
-void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
-    switch(type) {
-        case WStype_DISCONNECTED:
-             Serial.printf("[WSc] Disconnected!\n");
-             isConnected = false;
-             setup();
-             break;
-        case WStype_CONNECTED:
-             Serial.printf("[WSc] Connected to url: %s\n",  payload);
-             isConnected = true;
-             // send message to server when Connected
-             // socket.io upgrade confirmation message (required)
-             webSocket.sendTXT("5");
-             break;
-        case WStype_TEXT:
-             Serial.printf("[WSc] get text: %s\n", payload);
-             if (strcmp((char *)payload, "OPEN_GATE_START_REQUEST") == 0) {
-                 openGateStart();
-             }
-             if (strcmp((char *)payload, "OPEN_GATE_END_REQUEST") == 0) {
-                 openGateEnd();
-             }
-             break;
-        case WStype_BIN:
-            Serial.printf("[WSc] get binary lenght: %u\n", lenght);
-            hexdump(payload, lenght);
-            // send data to server
-            // webSocket.sendBIN(payload, lenght);
-            break;
-    }
-}
-
-void openGateStart() {
-  openingTimestamp = millis();
-  webSocket.sendTXT("OPEN_GATE_START_RESPONSE");
-  ledOn();
-  digitalWrite(RELAY, HIGH);
-  isOpening = true;
-}
-
-void openGateEnd() {
-  if (openingTimestamp == 0 && forceGateEndAt == 0) {
-      // Jeśli przycisk jest zwolniony to nic nie trzeba robić
-      webSocket.sendTXT("OPEN_GATE_END_RESPONSE");
-  } else if (openingTimestamp > 0 && (millis() - openingTimestamp) > MIN_OPPENING_INTERVAL) {
-      // Jeśli otwieramy i minął czas minimalnego otwarcia to możemy zwolnić
-      openGateEndHard();
-  } else if (forceGateEndAt == 0 && openingTimestamp > 0) {
-      // Jeśli przycisk został przytrzymany z krótko to ustaw czas zamknięcia i wyślij sygnał że nadal otwieramy
-      webSocket.sendTXT("OPEN_GATE_START_RESPONSE");
-      forceGateEndAt = millis() + MIN_OPPENING_INTERVAL;
-  } else {
-      if (isOpening) {
-          webSocket.sendTXT("OPEN_GATE_START_RESPONSE");
-      } else {
-          webSocket.sendTXT("OPEN_GATE_END_RESPONSE");
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght)
+{
+  switch(type) {
+    case WStype_DISCONNECTED:
+       Serial.printf("[WSc] Disconnected!\n");
+       isConnected = false;
+       setup();
+       break;
+    case WStype_CONNECTED:
+       Serial.printf("[WSc] Connected to url: %s\n",  payload);
+       isConnected = true;
+       // send message to server when Connected
+       // socket.io upgrade confirmation message (required)
+       webSocket.sendTXT("5");
+       break;
+    case WStype_TEXT:
+      Serial.printf("[WSc] get text: %s\n", payload);
+      if (strcmp((char *)payload, "OPEN_GATE_START_REQUEST") == 0) {
+        open();
       }
+      if (strcmp((char *)payload, "OPEN_GATE_END_REQUEST") == 0) {
+        // do norhing
+      }
+      break;
+    case WStype_BIN:
+      Serial.printf("[WSc] get binary lenght: %u\n", lenght);
+      hexdump(payload, lenght);
+      // send data to server
+      // webSocket.sendBIN(payload, lenght);
+      break;
   }
 }
 
-void openGateEndHard() {
-      openingTimestamp = 0;
-      forceGateEndAt = 0;
-      webSocket.sendTXT("OPEN_GATE_END_RESPONSE");
-      digitalWrite(RELAY, LOW);
-      ledOff(); 
-      isOpening = false; 
-}
-
-void ledOn() {
+void start()
+{
+  isOpening = true;
+  tone(BUZZER, 500);
+  webSocket.sendTXT("OPEN_GATE_START_RESPONSE");
   digitalWrite(BUILTIN_LED, LOW);
+  digitalWrite(RELAY, HIGH);
 }
 
-void ledOff() {
+void end()
+{
+  isOpening = false;
+  noTone(BUZZER);
+  webSocket.sendTXT("OPEN_GATE_END_RESPONSE");
   digitalWrite(BUILTIN_LED, HIGH);
+  digitalWrite(RELAY, LOW);
 }
 
-void setup() {
-    Serial.begin(9600);
-    pinMode(BUILTIN_LED, OUTPUT);
-    ledOn();
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(BUILTIN_LED, OUTPUT);
+  digitalWrite(BUILTIN_LED, LOW); // led on
 
-    pinMode(RELAY, OUTPUT);
-    digitalWrite(RELAY, LOW);
+  pinMode(RELAY, OUTPUT);
+  digitalWrite(RELAY, LOW);
 
-    pinMode(BUZZER, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
 
-    for(uint8_t t = 4; t > 0; t--) {
-        Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
-        Serial.flush();
-        delay(1000);
-    }
-    WiFiMulti.addAP(wifi_ssid, wifi_pass);
-    //WiFi.disconnect();
+  for(uint8_t t = 4; t > 0; t--) {
+    Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
+    Serial.flush();
+    delay(1000);
+  }
+  WiFiMulti.addAP(wifi_ssid, wifi_pass);
+  //WiFi.disconnect();
 
-    while(WiFiMulti.run() != WL_CONNECTED) {
-        delay(100);
-    }
+  while(WiFiMulti.run() != WL_CONNECTED) {
+    delay(100);
+  }
 
-    webSocket.begin(ws_host, ws_port);
-    webSocket.setAuthorization(ws_user, ws_pass);
-    webSocket.onEvent(webSocketEvent);
+  webSocket.begin(ws_host, ws_port);
+  webSocket.setAuthorization(ws_user, ws_pass);
+  webSocket.onEvent(webSocketEvent);
 
-    ledOff();
+  digitalWrite(BUILTIN_LED, HIGH); // led off
 }
 
-void loop() {
-    webSocket.loop();
-    uint64_t now = millis();
-    if (openingTimestamp > 0 && (now - openingTimestamp) > MAX_OPPENING_INTERVAL) {
-        Serial.println("timeout");
-        openGateEndHard();
-    }
+void open()
+{
+  if (isOpening) {
+    Serial.printf("gate is already opening");
+    return;
+  }
+  
+  
+  IPAddress ipaddr;
+  int err = WiFi.hostByName("gategsm", ipaddr) ;
+  if(err == 1){
+        Serial.print("Ip address: ");
+        Serial.println(ipaddr);
+  } else {
+        Serial.print("Error code: ");
+        Serial.println(err);
+        return;
+  }
 
-    if (forceGateEndAt > 0 && now > forceGateEndAt) {
-        Serial.println("time to release");
-        openGateEndHard();
-    }
-
-    if (isConnected) {
-        if((now - heartbeatTimestamp) > HEARTBEAT_INTERVAL) {
-            heartbeatTimestamp = now;
-            webSocket.sendTXT("2"); // heartbeat message
+  start();
+  if (http.begin(client, String("http://") + ipaddr.toString() + "/open")) {
+    int status = http.GET();
+    http.end();
+    if (status == 200) {
+      int i = 20;
+      while (i--) {
+        isOpening = getIsOpening();
+        if (!isOpening) {
+          break;
         }
-    }
-
-    if (isOpening) {
-        int freq = 500;
-        tone(BUZZER, freq);
+        delay(1000);
+      }
     } else {
-        noTone(BUZZER);
+      Serial.printf("[HTTP} GET request http://gategsm/open, status = %d\n", status);
     }
+  } else {
+    Serial.printf("[HTTP} Unable to connect http://gategsm/open\n");
+  }
+  end();
+}
+
+bool getIsOpening()
+{
+  if (http.begin(client, "http://gategsm/status")) {
+    int status = http.GET();
+    Serial.printf("[HTTP} GET request http://gategsm/status, status = %d\n", status);
+    http.end();
+    return status == 226;
+  } else {
+    return false;
+  }
+}
+
+void loop()
+{
+  webSocket.loop();
+
+  uint64_t now = millis();
+  if (isConnected) {
+    if((now - heartbeatTimestamp) > HEARTBEAT_INTERVAL) {
+      heartbeatTimestamp = now;
+      webSocket.sendTXT("2"); // heartbeat message
+    }
+  }
 }
