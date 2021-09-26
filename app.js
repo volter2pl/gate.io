@@ -13,6 +13,7 @@ module.exports = function(sockets) {
 
   let indexRouter = require('./routes/index');
   let gateRouter = require('./routes/gate')(sockets);
+  let scRouter = require('./routes/sc')();
 
   auth(passport);
   let app = express();
@@ -31,6 +32,7 @@ module.exports = function(sockets) {
 
   app.use('/', indexRouter);
   app.use('/gate', gateRouter);
+  app.use('/sc', scRouter);
 
 // catch 404 and forward to error handler
   app.use(function (req, res, next) {
