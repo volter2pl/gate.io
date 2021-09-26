@@ -28,8 +28,8 @@ module.exports = () => {
 
     router.post('/login', (req, res, next) => {
         res.send({
-            req.body.email,
-            req.body.password,
+            email: req.body.email,
+            pass: req.body.password,
         });
     });
 
