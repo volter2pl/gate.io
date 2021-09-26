@@ -4,7 +4,7 @@ module.exports = function(sockets) {
   let express = require('express');
   let basicAuth = require('express-basic-auth');
   let path = require('path');
-  let bodyParser = require('body-parser');
+//  let bodyParser = require('body-parser');
   let cookieParser = require('cookie-parser');
   let cookieSession = require('cookie-session');
   let logger = require('morgan');
@@ -24,9 +24,9 @@ module.exports = function(sockets) {
   app.set('view engine', 'ejs');
 
   app.use(logger('dev'));
-  app.use(bodyParser.urlencoded({ extended: false }));
   app.use(express.json());
-  app.use(express.urlencoded({extended: false}));
+//  app.use(express.urlencoded({ extended: true }));
+//  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(passport.initialize());

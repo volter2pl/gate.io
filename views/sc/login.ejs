@@ -47,7 +47,7 @@
             if (input.value.trim() === "") {
                 return showError(input, message);
             }
-            return showSuccess(input);
+            return true; // showSuccess(input);
         }
 
         function validateEmail(input, requiredMsg, invalidMsg) {
@@ -66,7 +66,7 @@
             return true;
         }
 
-        const form = document.querySelector("#signup");
+        const form = document.querySelector("#login");
 
         const PASSWORD_REQUIRED = "Please enter your password";
         const EMAIL_REQUIRED = "Please enter your email";
@@ -78,7 +78,7 @@
 
             // validate the form
             let pass = form.elements["password"];
-            let email = form.elements["password"];
+            let email = form.elements["email"];
 
             let passwordValid = hasValue(pass, PASSWORD_REQUIRED);
             let emailValid = validateEmail(email, EMAIL_REQUIRED, EMAIL_INVALID);
@@ -86,22 +86,20 @@
             if (passwordValid && emailValid) {
 
                 let data = {
-                    pass.value,
-                    email.value,
+                    pass: pass.value,
+                    email: email.value,
                 };
-
-                console.log('data', data);
 
                 fetch("login", {
                   method: "POST",
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
                   body: JSON.stringify(data)
-                }).then(res => {
-                  console.log("Request complete! response:", res);
+                }).then(res => res.json()
+                ).then((body) => {
+                  window.location.replace(body.redirect);
                 });
-
-                // button.style.display = "none";
-                // window.location.replace("/gate");
-
             }
         });
     })();
