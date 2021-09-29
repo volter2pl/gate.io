@@ -9,38 +9,37 @@ const login = async (username, password) => {
     return axios.post(
         URL + 'jwt/token',
         {password, username},
-        {headers: {'Content-Type': 'application/json'}}
+        {headers: {"Content-Type": "application/json", "Cache-Control": "no-cache"}}
     );
 };
 
-const refresh = async (accessToken, refreshToken) => {
+const refresh = async (refreshToken) => {
 
     const data = { refresh_token: refreshToken};
     const config = {
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`
+            "Cache-Control": "no-cache",
         }
     };
 
-    console.log('refresh!!!!!', {config, data});
+    try {
+        const r = await axios.post(URL + 'refresh/token', data, config);
+        return r.data;
+    } catch(e) {
+        console.log('error', e);
+    }
 
-    return axios.post(URL + 'refresh/token', data, config);
+    return {accessToken: "", refreshToken: ""};
 };
 
-const calendar = async (accessToken, refreshToken) => {
-
-    //let jwt = jwt_decode(accessToken);
-    //console.log('jwt', jwt);
-
-    //const cred = await refresh(accessToken, refreshToken);
-    //console.log('cred!!!!', cred);
-
+const calendar = async (accessToken) => {
     return axios.get(
         URL + 'calendar/events?calendars=1,2,3,4,5,6,7,8,9,10,11,12,13,14',
         {
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache",
                 Authorization: 'Bearer ' + accessToken
             }
         }
@@ -49,26 +48,33 @@ const calendar = async (accessToken, refreshToken) => {
 
 module.exports = () => {
 
-  router.get('/', (req, res, next) => {
+  router.get('/', async (req, res, next) => {
 
-      console.log('cook', req.cookies);
-      const accessToken = req.cookies['accessToken'] || "";
-      const refreshToken = req.cookies['refreshToken'] || "";
+      let accessToken = req.cookies['accessToken'];
+      let refreshToken = req.cookies['refreshToken'];
 
       if (req.session && accessToken.length > 0 && refreshToken.length > 0) {
-          calendar(accessToken, refreshToken)
-          .then(data => {
-              console.log(data.data);
+          let jwt = jwt_decode(accessToken);
+          console.log(jwt);
 
-//              res.json(data.data)
+          if ( jwt.exp <= Math.round(Date.now()/1000) ) {
+              const cred = await refresh(refreshToken);
+              accessToken = cred.accessToken;
+              refreshToken = cred.refreshToken;
+              res.cookie('accessToken', accessToken);
+              res.cookie('refreshToken', refreshToken);
+          }
+
+          calendar(accessToken)
+          .then(data => {
               res.render('sc/index', {
                   title: 'login',
                   data: JSON.stringify(data.data)
               });
-
-
           }).catch(error => {
-              console.log(error);
+              // if 401
+              // res.redirect('/sc/login');
+              console.log(error.data);
               res.status(400).json(error);
           });
       } else {
@@ -98,23 +104,19 @@ module.exports = () => {
       })
   });
 
-  router.get('/refresh', (req, res) => {
+  router.get('/refresh', async (req, res) => {
 
-      const accessToken = req.cookies['accessToken'] || "";
-      const refreshToken = req.cookies['refreshToken'] || "";
+      try {
+          const jumpkeeper = await refresh(req.cookies['refreshToken']);
 
-      refresh(accessToken, refreshToken)
-      .then(jumpkeeper => {
-          // console.log('data', jumpkeeper);
+          res.cookie('accessToken', jumpkeeper.accessToken);
+          res.cookie('refreshToken', jumpkeeper.refreshToken);
 
-          res.cookie('accessToken', jumpkeeper.data.accessToken);
-          res.cookie('refreshToken', jumpkeeper.data.refreshToken);
-          res.json({jumpkeeper: jumpkeeper.data});
-
-      }).catch(error => {
+          res.json({jumpkeeper: jumpkeeper});
+      } catch(error) {
           const e = error.response.data;
           res.status(400).json({error: [e.message, e.exception, e.file, e.line]});
-      });
+      };
 
   });
 

@@ -12,6 +12,7 @@
 
 <script>
 const button = document.getElementById("refresh");
+console.log("cookie", document.cookie);
 
 button.addEventListener("click", function (event) {
     fetch("refresh", {
@@ -23,6 +24,7 @@ button.addEventListener("click", function (event) {
     }).then(res => res.json()
     ).then((body) => {
          console.log("Request complete! response:", body);
+         console.log("cookie", document.cookie);
     });
 });
 </script>
