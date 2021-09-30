@@ -4,29 +4,17 @@
 </head>
 <body>
 
-<button id="refresh">click me!</button>
+<button id="logout">logout</button>
 
 <pre>
     <%= data %>
 </pre>
 
 <script>
-const button = document.getElementById("refresh");
-console.log("cookie", document.cookie);
-
-button.addEventListener("click", function (event) {
-    fetch("refresh", {
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        // body: JSON.stringify(data)
-    }).then(res => res.json()
-    ).then((body) => {
-         console.log("Request complete! response:", body);
-         console.log("cookie", document.cookie);
-    });
-});
+  const logout = document.getElementById("logout");
+  logout.addEventListener("click", function (event) {
+      fetch("logout").then(() => window.location.reload(true));
+  });
 </script>
 
 </body>
