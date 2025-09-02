@@ -1,0 +1,14 @@
+<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg" width="320" height="533">
+  <g>
+    <rect fill="none" height="500" width="300" y="0" x="0" />
+  </g>
+  <g>
+    <rect stroke="#fff" rx="50" height="500" width="300" y="0" x="0" stroke-width="1.5" fill="#444444" />
+    <rect stroke="#fff" rx="20" ry="20" height="50" width="150" y="10" x="75" stroke-width="1.5" fill="#777777" />
+    <text y="40" x="150" dominant-baseline="middle" text-anchor="middle" font-size="40" font-family="Arial, Helvetica, sans-serif" fill="#444444">Install</text>
+    <ellipse ry="50" rx="50" cy="250" cx="75" stroke-width="1.5" stroke="#fff" fill="#000000" />
+    <ellipse ry="50" rx="50" cy="250" cx="225" stroke-width="1.5" stroke="#fff" fill="#000000" />
+    <ellipse ry="15" rx="15" cy="125" cx="150" stroke-width="1.5" stroke="#fff" fill="#600000" />
+    <text y="490" x="150" dominant-baseline="middle" text-anchor="middle" font-size="10" font-family="Arial, Helvetica, sans-serif" fill="#FFFFFF">user@example.com</text>
+  </g>
+</svg>
